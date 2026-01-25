@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authorization; // Required for Handlers
 using JewelryMS.API.Authorization;     // Required for PermissionHandler/Provider
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // --- 1. DATABASE & ENUMS ---
@@ -113,6 +114,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "JewelryMS API v1"));
 }
+app.UseStaticFiles();
 
 app.UseRouting();
 app.MapHealthChecks("/health");

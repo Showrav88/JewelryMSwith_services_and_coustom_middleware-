@@ -8,8 +8,11 @@ public class ProductPricing {
     // Columns from the Product table
     public string Sku { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
-
+    public string Category { get; set; } = string.Empty;
     // The NEW columns from the SQL View logic
     public string FormattedWeight { get; set; } = string.Empty; 
     public decimal TotalPriceBdt { get; set; }
+    public string? PrimaryImage { get; set; }
+
+
 }

@@ -6,3 +6,6 @@
 *.suo
 appsettings.json
 appsettings.Development.json
+# Ignore actual product images but keep the folder
+wwwroot/images/products/*
+!wwwroot/images/products/.gitkeep
