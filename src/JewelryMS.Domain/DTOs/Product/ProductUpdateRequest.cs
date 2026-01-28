@@ -2,6 +2,7 @@ namespace JewelryMS.Domain.DTOs.Product;
 public class ProductUpdateRequest
 {
     // Fields for both full and partial updates
+    public string? Sku { get; set; }    
     public string? Name { get; set; }
     public string? SubName { get; set; }
     public string? Purity { get; set; }

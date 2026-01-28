@@ -76,7 +76,8 @@ public async Task<IEnumerable<Product>> GetAllAsync()
     
     const string sql = @"
         UPDATE public.products 
-        SET name = @Name, 
+        SET sku = @Sku,
+            name = @Name, 
             sub_name = @SubName, 
             purity = @Purity::public.metal_purity, 
             category = @Category::public.jewelry_category, 

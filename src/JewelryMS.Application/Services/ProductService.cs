@@ -92,6 +92,7 @@ public class ProductService : IProductService
         if (existing == null) return false;
 
         // Apply partial updates
+        if (request.Sku != null) existing.Sku = request.Sku;
         if (request.Name != null) existing.Name = request.Name;
         if (request.SubName != null) existing.SubName = request.SubName;
         if (request.Purity != null) existing.Purity = request.Purity;
