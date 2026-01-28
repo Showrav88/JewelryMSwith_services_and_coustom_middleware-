@@ -4,7 +4,7 @@ using JewelryMS.Domain.Entities;
 
 
 
-namespace JewelryMS.Domain.Interfaces;
+namespace JewelryMS.Domain.Interfaces.Repositories;
 public interface IRolePermissionRepository
 {
     Task<bool> HasPermissionAsync(string role, string featureName);

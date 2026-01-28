@@ -1,37 +1,42 @@
-using JewelryMS.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using JewelryMS.Application.DTOs.Product;
 using JewelryMS.Domain.Entities;
-using JewelryMS.Domain.Enums;
-using Npgsql;
+using JewelryMS.Domain.Interfaces.Services;
 
 namespace JewelryMS.API.Controllers;
-[Authorize(Roles = "SHOP_OWNER")]
+
+
 [ApiController]
 [Route("api/admin/rates")]
 public class MetalRateController : ControllerBase
 {
-    private readonly IMetalRateRepository _rateRepo;
+    private readonly IMetalRateService _rateService;
 
-    public MetalRateController(IMetalRateRepository rateRepo)
+    public MetalRateController(IMetalRateService rateService)
     {
-        _rateRepo = rateRepo;
+        _rateService = rateService;
     }
+
+    private Guid CurrentShopId => Guid.Parse(User.FindFirst("shop_id")?.Value ?? Guid.Empty.ToString());
     [HttpGet("shop")]
+    [Authorize]
+    [HasPermission("view_rates")]
     public async Task<IActionResult> GetShopRates()
     {
-        var shopId = Guid.Parse(User.FindFirst("shop_id")?.Value ?? "");
-        var rates = await _rateRepo.GetShopRatesAsync(shopId);
+        var rates = await _rateService.GetRatesForCurrentShopAsync(CurrentShopId);
         return Ok(rates);
     }
 
     [HttpPut("update")]
+    [Authorize]
+    [HasPermission("update_rates")]
     public async Task<IActionResult> UpdateDailyRate([FromBody] MetalRate rate)
     {
-        // Ensure the ShopId from the JWT matches the request
-        // (Though RLS would block it anyway, this is good practice)
-        var result = await _rateRepo.UpdateRateAsync(rate);
-        return result ? Ok(new { message = "Rate updated successfully" }) : BadRequest();
+        var result = await _rateService.UpdateMetalRateAsync(rate, CurrentShopId);
+        
+        if (!result) 
+            return BadRequest(new { message = "Update failed. Check Shop ID permissions." });
+
+        return Ok(new { message = "Rate updated successfully" });
     }
 }

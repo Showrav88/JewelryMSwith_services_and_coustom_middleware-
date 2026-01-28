@@ -1,4 +1,5 @@
-namespace JewelryMS.Application.DTOs.Product;
+using JewelryMS.Domain.DTOs.Product;
+namespace JewelryMS.Domain.DTOs.Product;
 
 public class ProductResponse
 {

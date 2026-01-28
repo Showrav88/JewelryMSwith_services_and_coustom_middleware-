@@ -2,7 +2,7 @@ using Dapper;
 using Microsoft.AspNetCore.Http;
 using Npgsql;
 using JewelryMS.Domain.Entities;
-using JewelryMS.Domain.Interfaces;
+using JewelryMS.Domain.Interfaces.Repositories;
 using JewelryMS.Infrastructure.Data;
 using System.Collections.Generic;
 using System.Threading.Tasks;

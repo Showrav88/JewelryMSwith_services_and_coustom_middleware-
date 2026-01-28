@@ -1,10 +1,11 @@
-using JewelryMS.Domain.Interfaces;
+using JewelryMS.Domain.Interfaces.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using JewelryMS.Application.DTOs.Product;
+using JewelryMS.Domain.DTOs.Product;
 using JewelryMS.Domain.Entities;
 using JewelryMS.Domain.Enums;
 using Npgsql;
+using JewelryMS.Domain.Interfaces.Services;
 
 namespace JewelryMS.API.Controllers;
 
@@ -12,34 +13,23 @@ namespace JewelryMS.API.Controllers;
 [Route("api/public-products")]
 public class PublicProductController : ControllerBase
 {
-    private readonly IPublicProductRepository _publicRepo;
+    private readonly IPublicProductService _publicProductService;
 
-    public PublicProductController(IPublicProductRepository publicRepo)
+    public PublicProductController(IPublicProductService publicProductService)
     {
-        _publicRepo = publicRepo;
+        _publicProductService = publicProductService;
     }
 
-[HttpGet("{shopId}")]
-public async Task<IActionResult> GetProductPricing(Guid shopId)
-{
-    var pricingData = await _publicRepo.GetPublicProductPricingAsync(shopId);
-    
-    if (pricingData == null) return NotFound();
+    [HttpGet("{shopId}")]
+    public async Task<IActionResult> GetProductPricing(Guid shopId)
+    {
+        // Get the base URL (e.g., https://localhost:7001)
+        var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
 
-    var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
+        var response = await _publicProductService.GetPublicProductsWithPricingAsync(shopId, baseUrl);
 
-    var response = pricingData.Select(p => new {
-        p.sku,
-        p.name,
-        p.category,
-        p.formatted_weight,
-        p.total_price_bdt,
-        // Map the filename to a clickable URL
-        imageUrl = !string.IsNullOrEmpty(p.primary_image) 
-                   ? $"{baseUrl}/images/products/{p.primary_image}" 
-                   : $"{baseUrl}/images/products/no-image.png"
-    });
+        if (!response.Any()) return NotFound(new { message = "No products found for this shop." });
 
-    return Ok(response);
-}
+        return Ok(response);
+    }
 }

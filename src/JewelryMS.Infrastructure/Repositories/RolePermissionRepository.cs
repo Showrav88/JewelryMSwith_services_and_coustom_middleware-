@@ -3,7 +3,7 @@ using Npgsql;
 using Microsoft.AspNetCore.Http;
 using JewelryMS.Infrastructure.Data;
 using JewelryMS.Domain.Entities;
-using JewelryMS.Domain.Interfaces;
+using JewelryMS.Domain.Interfaces.Repositories;
 
 namespace JewelryMS.Infrastructure.Repositories;
 

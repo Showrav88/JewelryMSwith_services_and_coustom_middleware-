@@ -7,15 +7,15 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using JewelryMS.Domain.Enums;
-using JewelryMS.Domain.Interfaces;
+using JewelryMS.Domain.Interfaces.Repositories;
 using JewelryMS.Infrastructure.Repositories;
 using Microsoft.OpenApi.Models; 
 using Microsoft.AspNetCore.Diagnostics.HealthChecks; 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authorization; // Required for Handlers
 using JewelryMS.API.Authorization;     // Required for PermissionHandler/Provider
-
-
+using JewelryMS.Domain.Interfaces.Services;
+using JewelryMS.Application.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // --- 1. DATABASE & ENUMS ---
@@ -71,12 +71,18 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.AddHttpContextAccessor();
+// --- REPOSITORIES DEPENDENCY INJECTION ---
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IPublicProductRepository, PublicProductRepository>();
 builder.Services.AddScoped<IMetalRateRepository, MetalRateRepository>();
 builder.Services.AddScoped<IRolePermissionRepository, RolePermissionRepository>();
-
+// Services Bussiness Logic
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IMetalRateService, MetalRateService>();
+builder.Services.AddScoped<IPublicProductService, PublicProductService>();
+builder.Services.AddScoped<IPermissionService, PermissionService>();
 // --- 3. ROLE PERMISSION LOGIC (INTEGRATED) ---
 // These are the pieces that connect the [HasPermission] attribute to the DB
 builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
@@ -104,6 +110,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
@@ -118,7 +125,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 app.MapHealthChecks("/health");
-
+app.UseMiddleware<PermissionMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 

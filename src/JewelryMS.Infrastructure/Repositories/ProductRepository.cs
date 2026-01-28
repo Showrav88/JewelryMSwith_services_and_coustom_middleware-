@@ -4,7 +4,7 @@ using Dapper;
 using Microsoft.AspNetCore.Http;
 using Npgsql;
 using JewelryMS.Infrastructure.Data;
-using JewelryMS.Domain.Interfaces;
+using JewelryMS.Domain.Interfaces.Repositories;
 using JewelryMS.Domain.Entities;
 
 namespace JewelryMS.Infrastructure.Repositories;

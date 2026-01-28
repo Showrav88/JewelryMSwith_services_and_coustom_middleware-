@@ -1,4 +1,4 @@
-namespace JewelryMS.Application.DTOs.Auth;
+namespace JewelryMS.Domain.DTOs.Auth;
 
 public class LoginRequest
 {

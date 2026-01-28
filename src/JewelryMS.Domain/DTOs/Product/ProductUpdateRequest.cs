@@ -1,4 +1,4 @@
-namespace JewelryMS.Application.DTOs.Product;
+namespace JewelryMS.Domain.DTOs.Product;
 public class ProductUpdateRequest
 {
     // Fields for both full and partial updates

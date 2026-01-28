@@ -1,4 +1,4 @@
-namespace JewelryMS.Application.DTOs.Product;
+namespace JewelryMS.Domain.DTOs.Product;
 
 public class ProductPricingResponse {
     public string Sku { get; set; } = string.Empty;

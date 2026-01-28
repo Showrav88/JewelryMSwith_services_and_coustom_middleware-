@@ -1,6 +1,6 @@
 using JewelryMS.Domain.Entities;
 
-namespace JewelryMS.Domain.Interfaces;
+namespace JewelryMS.Domain.Interfaces.Repositories;
 
 public interface IUserRepository
 {
