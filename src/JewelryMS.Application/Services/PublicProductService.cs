@@ -25,6 +25,27 @@ public class PublicProductService : IPublicProductService
             p.category,
             p.formatted_weight,
             p.total_price_bdt,
+            p.purity,
+            imageUrl = !string.IsNullOrEmpty(p.primary_image) 
+                        ? $"{baseUrl}/images/products/{p.primary_image}" 
+                        : $"{baseUrl}/images/products/no-image.png"
+        });
+    }
+
+    public async Task<IEnumerable<object>> GetAllPublicProductsWithPricingAsync(string baseUrl)
+    {
+        var pricingData = await _publicRepo.GetAllPublicProductPricingAsync();
+
+        if (pricingData == null) return Enumerable.Empty<object>();
+
+        // Logic moved from Controller to Service
+        return pricingData.Select(p => new {
+            p.sku,
+            p.shop_name,
+            p.category,
+            p.formatted_weight,
+            p.total_price_bdt,
+            p.purity,
             imageUrl = !string.IsNullOrEmpty(p.primary_image) 
                         ? $"{baseUrl}/images/products/{p.primary_image}" 
                         : $"{baseUrl}/images/products/no-image.png"

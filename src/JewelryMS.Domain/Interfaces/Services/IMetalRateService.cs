@@ -1,9 +1,9 @@
-using JewelryMS.Domain.Entities;
+using JewelryMS.Domain.DTOs.Rates;
 
 namespace JewelryMS.Domain.Interfaces.Services;
 
 public interface IMetalRateService
 {
-    Task<IEnumerable<MetalRate>> GetRatesForCurrentShopAsync(Guid shopId);
-    Task<bool> UpdateMetalRateAsync(MetalRate rate, Guid currentShopId);
+    Task<IEnumerable<RateResponse>> GetRatesForCurrentShopAsync(Guid shopId);
+    Task<bool> UpdateMetalRateAsync(RateUpdateRequest rate, Guid currentShopId);
 }

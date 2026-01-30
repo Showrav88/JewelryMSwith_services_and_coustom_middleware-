@@ -32,4 +32,15 @@ public class PublicProductController : ControllerBase
 
         return Ok(response);
     }
+    [HttpGet("view_marketplace_all_products")]
+    public async Task<IActionResult> GetAllProducts()
+    {
+        var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
+
+        var response = await _publicProductService.GetAllPublicProductsWithPricingAsync(baseUrl);
+
+        if (!response.Any()) return NotFound(new { message = "No products found." });
+
+        return Ok(response);
+    }
 }

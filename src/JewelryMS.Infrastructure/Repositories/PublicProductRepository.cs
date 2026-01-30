@@ -34,4 +34,23 @@ public async Task<IEnumerable<dynamic>> GetPublicProductPricingAsync(Guid shopId
 
     return await connection.QueryAsync<dynamic>(sql, new { ShopId = shopId });
 }
+    public async Task<IEnumerable<dynamic>> GetAllPublicProductPricingAsync()
+    {
+        using var connection = await _dataSource.OpenConnectionAsync();
+        
+        // We only select the non-vulnerable columns
+       const string sql = @"
+        SELECT 
+            sku, 
+            shop_name, 
+            category,
+            purity, 
+            base_material, 
+            formatted_weight, 
+            total_price_bdt,
+            primary_image -- Use the alias from your VIEW
+        FROM public.view_marketplace_all_products";
+
+        return await connection.QueryAsync<dynamic>(sql);
+    }
 }

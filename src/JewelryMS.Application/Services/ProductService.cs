@@ -31,7 +31,8 @@ public class ProductService : IProductService
             BaseMaterial = p.BaseMaterial,
             MakingCharge = p.MakingCharge,
             GrossWeight = p.GrossWeight,
-            NetWeight = p.NetWeight
+            NetWeight = p.NetWeight,
+            UpdatedAt = p.UpdatedAt
         });
     }
 
@@ -51,7 +52,8 @@ public class ProductService : IProductService
             BaseMaterial = product.BaseMaterial,
             MakingCharge = product.MakingCharge,
             GrossWeight = product.GrossWeight,
-            NetWeight = product.NetWeight
+            NetWeight = product.NetWeight,
+            UpdatedAt = product.UpdatedAt
         };
     }
 
@@ -73,7 +75,9 @@ public class ProductService : IProductService
             BaseMaterial = request.BaseMaterial,
             GrossWeight = request.GrossWeight,
             NetWeight = request.NetWeight,
-            MakingCharge = request.MakingCharge
+            MakingCharge = request.MakingCharge,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
         };
 
         try 

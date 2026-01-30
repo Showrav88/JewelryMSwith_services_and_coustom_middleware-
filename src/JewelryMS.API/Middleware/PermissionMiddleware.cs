@@ -1,3 +1,4 @@
+namespace JewelryMS.API.Middleware;
 public class PermissionMiddleware
 {
     private readonly RequestDelegate _next;
@@ -20,6 +21,7 @@ public class PermissionMiddleware
                 message = message,
                 status = 403
             });
+            
         }
     }
 }

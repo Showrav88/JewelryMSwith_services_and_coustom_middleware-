@@ -9,5 +9,6 @@ namespace JewelryMS.Domain.Interfaces.Repositories;
 public interface IPublicProductRepository {
     
     Task<IEnumerable<dynamic>> GetPublicProductPricingAsync(Guid shopId);
+    Task<IEnumerable<dynamic>> GetAllPublicProductPricingAsync();
 }
 

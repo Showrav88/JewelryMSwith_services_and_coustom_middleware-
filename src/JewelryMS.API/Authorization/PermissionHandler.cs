@@ -37,5 +37,6 @@ public class PermissionHandler : AuthorizationHandler<PermissionRequirement>
                 httpContext.Items["ForbiddenMessage"] = $"Access Denied: Role '{role}' lacks permission for '{requirement.FeatureName}'.";
             }
         }
+        
     }
 }

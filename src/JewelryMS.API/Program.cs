@@ -12,10 +12,13 @@ using JewelryMS.Infrastructure.Repositories;
 using Microsoft.OpenApi.Models; 
 using Microsoft.AspNetCore.Diagnostics.HealthChecks; 
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Authorization; // Required for Handlers
-using JewelryMS.API.Authorization;     // Required for PermissionHandler/Provider
+using Microsoft.AspNetCore.Authorization; 
+using JewelryMS.API.Authorization;     
 using JewelryMS.Domain.Interfaces.Services;
 using JewelryMS.Application.Services;
+using JewelryMS.API.Middleware; // Ensure your middleware namespace is included
+
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 var builder = WebApplication.CreateBuilder(args);
 
 // --- 1. DATABASE & ENUMS ---
@@ -30,8 +33,7 @@ var dataSource = dataSourceBuilder.Build();
 builder.Services.AddSingleton(dataSource);
 
 // --- HEALTH CHECKS ---
-builder.Services.AddHealthChecks()
-    .AddNpgSql(connectionString!);
+builder.Services.AddHealthChecks().AddNpgSql(connectionString!);
 
 // --- 2. DAPPER SETUP ---
 DefaultTypeMap.MatchNamesWithUnderscores = true;
@@ -48,7 +50,6 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Jewelry Management API", Version = "v1" });
-
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -58,7 +59,6 @@ builder.Services.AddSwaggerGen(c =>
         In = ParameterLocation.Header,
         Description = "Enter your token: Bearer {your_token}"
     });
-
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -71,24 +71,25 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.AddHttpContextAccessor();
-// --- REPOSITORIES DEPENDENCY INJECTION ---
+
+// --- REPOSITORIES ---
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IPublicProductRepository, PublicProductRepository>();
 builder.Services.AddScoped<IMetalRateRepository, MetalRateRepository>();
 builder.Services.AddScoped<IRolePermissionRepository, RolePermissionRepository>();
-// Services Bussiness Logic
+// --- SERVICES ---
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IMetalRateService, MetalRateService>();
 builder.Services.AddScoped<IPublicProductService, PublicProductService>();
 builder.Services.AddScoped<IPermissionService, PermissionService>();
-// --- 3. ROLE PERMISSION LOGIC (INTEGRATED) ---
-// These are the pieces that connect the [HasPermission] attribute to the DB
+
+// --- 3. ROLE PERMISSION LOGIC ---
 builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
 builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
 
-// --- 4. JWT AUTHENTICATION ---
+// --- 4. JWT AUTHENTICATION (UPDATED FOR CUSTOM 401) ---
 var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new Exception("JWT Key missing!");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -102,15 +103,29 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
-            
-            // This ensures System.Security.Claims.ClaimTypes.Role maps correctly
             RoleClaimType = System.Security.Claims.ClaimTypes.Role, 
             ClockSkew = TimeSpan.Zero 
+        };
+
+        // --- ADDED THIS TO HANDLE 401 CUSTOM MESSAGES ---
+        options.Events = new JwtBearerEvents
+        {
+            OnChallenge = async context =>
+            {
+                context.HandleResponse(); // Skip default blank response
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                context.Response.ContentType = "application/json";
+                await context.Response.WriteAsJsonAsync(new
+                {
+                    status = 401,
+                    error = "Unauthorized",
+                    message = "Access denied. A valid token is required to access this resource."
+                });
+            }
         };
     });
 
 builder.Services.AddAuthorization();
-builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
@@ -121,19 +136,20 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "JewelryMS API v1"));
 }
-app.UseStaticFiles();
 
+app.UseStaticFiles();
 app.UseRouting();
 app.MapHealthChecks("/health");
-app.UseMiddleware<PermissionMiddleware>();
+
+// IMPORTANT: Middleware order ensures the response is intercepted correctly
+app.UseMiddleware<PermissionMiddleware>(); 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
 app.Run();
 
-// --- 6. ENUM HANDLER (Remains Same) ---
+// --- 6. ENUM HANDLER ---
 public class UniversalEnumHandler<T> : SqlMapper.TypeHandler<T> where T : struct, Enum
 {
     public override void SetValue(IDbDataParameter parameter, T value) => parameter.Value = value.ToString();

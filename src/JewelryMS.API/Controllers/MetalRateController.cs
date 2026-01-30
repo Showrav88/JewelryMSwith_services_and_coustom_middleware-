@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using JewelryMS.Domain.Entities;
 using JewelryMS.Domain.Interfaces.Services;
+using JewelryMS.Domain.DTOs.Rates;
 
 namespace JewelryMS.API.Controllers;
 
@@ -30,7 +31,7 @@ public class MetalRateController : ControllerBase
     [HttpPut("update")]
     [Authorize]
     [HasPermission("update_rates")]
-    public async Task<IActionResult> UpdateDailyRate([FromBody] MetalRate rate)
+    public async Task<IActionResult> UpdateDailyRate([FromBody] RateUpdateRequest rate)
     {
         var result = await _rateService.UpdateMetalRateAsync(rate, CurrentShopId);
         

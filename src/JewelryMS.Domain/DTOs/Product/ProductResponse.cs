@@ -20,5 +20,5 @@ public class ProductResponse
     public decimal NetWeight { get; set; }
     public decimal MakingCharge { get; set; }
     // public DateTimeOffset CreatedAt { get; set; }
-    // public DateTimeOffset UpdatedAt { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
 }

@@ -11,4 +11,5 @@ public class ProductUpdateRequest
     public decimal? GrossWeight { get; set; }
     public decimal? NetWeight { get; set; }
     public decimal? MakingCharge { get; set; }
+    
 }
